@@ -133,7 +133,7 @@ exports.exportarReservasUsuario = async (req, res) => {
                     font: 'Helvetica',
                 },
             };
-
+            const printer = new PdfPrinter(fonts);
             // Generar el PDF usando la instancia de PdfPrinter ya configurada
             const pdfDoc = printer.createPdfKitDocument(docDefinition);
 

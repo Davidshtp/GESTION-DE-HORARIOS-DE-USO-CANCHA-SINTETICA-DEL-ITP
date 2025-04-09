@@ -71,7 +71,7 @@ export function InicioSesion() {
                         setUsuario("");
                         setContrasena("");
                         setMensaje("");
-                    }, 1000);
+                    }, 5000);
                 });
         }
     };

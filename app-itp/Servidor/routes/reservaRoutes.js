@@ -20,4 +20,5 @@ router.get('/dias-completamente-reservados',verificarToken,reservaController.obt
 //ruta para poder reservar todo el dia completo en caso de ser administrador
 router.post('/reservar-todo-el-dia',verificarToken,verificarAdmin, reservaController.reservarTodoElDia);
 
+
 module.exports = router;

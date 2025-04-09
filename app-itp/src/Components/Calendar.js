@@ -1,4 +1,3 @@
-
 import FullCalendar from '@fullcalendar/react'; // Integración con React
 import dayGridPlugin from '@fullcalendar/daygrid'; // Plugin para la vista de día
 import timeGridPlugin from '@fullcalendar/timegrid'; // Plugin para la vista de semana/día

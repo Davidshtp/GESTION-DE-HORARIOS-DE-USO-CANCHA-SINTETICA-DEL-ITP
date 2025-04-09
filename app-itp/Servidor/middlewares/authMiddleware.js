@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const db = require("../config/database"); // Importa la conexión a la base de datos
 
+
+
 exports.verificarToken = (req, res, next) => {
     const token = req.header('Authorization');
     if (!token) {
@@ -65,7 +67,7 @@ exports.loginConGoogle = async (req, res) => {
         });
 
         const payload = ticket.getPayload();
-        const { email, name, picture, sub } = payload;
+        const { email, name, picture } = payload;
 
         // Verificar que el correo tenga el dominio @itp.edu.co
         if (!email.endsWith("@itp.edu.co")) {
