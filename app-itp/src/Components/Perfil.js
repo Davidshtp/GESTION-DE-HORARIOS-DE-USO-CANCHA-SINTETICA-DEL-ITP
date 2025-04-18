@@ -37,7 +37,7 @@ export function Perfil() {
     // Función para obtener los datos del usuario
     const obtenerDatosUsuario = useCallback(async () => {
         try {
-            const response = await axios.get(`http://localhost:3001/api/usuario/${id}`,
+            const response = await axios.get(`https://localhost:3001/api/usuario/${id}`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             setUsuario(response.data.data);
@@ -56,7 +56,7 @@ export function Perfil() {
     // Función para eliminar la imagen de perfil
     const handleEliminarImagen = async () => {
         try {
-            const response = await axios.delete(`http://localhost:3001/api/usuarios/${id}/foto-perfil`,
+            const response = await axios.delete(`https://localhost:3001/api/usuarios/${id}/foto-perfil`,
                 { headers: { Authorization: `Bearer ${token}` } });
             if (response.data.success) {
                 setImagenPerfil(avatar);
@@ -81,7 +81,7 @@ export function Perfil() {
             const formData = new FormData();
             formData.append('imagen', file);
 
-            const response = await axios.post(`http://localhost:3001/api/usuarios/${id}/foto-perfil`, formData, {
+            const response = await axios.post(`https://localhost:3001/api/usuarios/${id}/foto-perfil`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     Authorization: `Bearer ${token}`
@@ -127,7 +127,7 @@ export function Perfil() {
                 nombre: usuario.nombre,
                 apellido: usuario.apellido
             }));
-            const response = await axios.post(`http://localhost:3001/api/usuarios/${id}/subir-pdf`, formData, {
+            const response = await axios.post(`https://localhost:3001/api/usuarios/${id}/subir-pdf`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     Authorization: `Bearer ${token}`
@@ -161,7 +161,7 @@ export function Perfil() {
             return;
         }
         try {
-            const response = await axios.delete(`http://localhost:3001/api/usuarios/${id}/eliminar-pdf`,
+            const response = await axios.delete(`https://localhost:3001/api/usuarios/${id}/eliminar-pdf`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
@@ -189,7 +189,7 @@ export function Perfil() {
             };
 
 
-            const response = await axios.get(`http://localhost:3001/api/usuarios/${id}/ver-pdf`, {
+            const response = await axios.get(`https://localhost:3001/api/usuarios/${id}/ver-pdf`, {
                 responseType: 'blob',
                 params: params,
                 headers: {
@@ -239,7 +239,7 @@ export function Perfil() {
         const cargarDatos = async () => {
             try {
                 // 1. Primero obtener datos del usuario
-                const userResponse = await axios.get(`http://localhost:3001/api/usuario/${id}?${Date.now()}`,
+                const userResponse = await axios.get(`https://localhost:3001/api/usuario/${id}?${Date.now()}`,
                     { headers: { Authorization: `Bearer ${token}` } });
                 const userData = userResponse.data.data;
                 setUsuario(userData);

@@ -78,7 +78,7 @@ export function HomePage() {
         const obtenerDatosUsuario = async () => {
             try {
                 const token = localStorage.getItem("token"); // Obtener el token
-                const response = await axios.get(`http://localhost:3001/api/usuario/${id}`, {
+                const response = await axios.get(`https://localhost:3001/api/usuario/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}` // Incluir el token en la petición
                     }
@@ -105,7 +105,7 @@ export function HomePage() {
 
 
 
-            const response = await axios.get('http://localhost:3001/api/export-database', {
+            const response = await axios.get('https://localhost:3001/api/export-database', {
                 responseType: 'blob', // Importante para manejar archivos binarios
                 headers: {
                     Authorization: `Bearer ${token}` // Incluir el token en la petición
@@ -138,7 +138,7 @@ export function HomePage() {
 
 
             const response = await axios.post(
-                "http://localhost:3001/api/reservar-todo-el-dia",
+                "https://localhost:3001/api/reservar-todo-el-dia",
                 { fecha, persona_id, rol }, // Datos de la petición
                 {
                     headers: {
@@ -167,7 +167,7 @@ export function HomePage() {
     const obtenerDiasReservados = async () => {
         try {
             const token = localStorage.getItem("token"); // Obtener el token
-            const response = await axios.get('http://localhost:3001/api/dias-completamente-reservados', {
+            const response = await axios.get('https://localhost:3001/api/dias-completamente-reservados', {
                 headers: {
                     Authorization: `Bearer ${token}` // Incluir el token en la petición
                 }
@@ -188,7 +188,7 @@ export function HomePage() {
     const fetchUserRole = useCallback(async () => {
         try {
             const token = localStorage.getItem("token"); // Obtener el token
-            const response = await axios.get(`http://localhost:3001/api/rol/${ID_Rol}`, {
+            const response = await axios.get(`https://localhost:3001/api/rol/${ID_Rol}`, {
                 headers: {
                     Authorization: `Bearer ${token}` // Incluir el token en la petición
                 }
@@ -212,7 +212,7 @@ export function HomePage() {
     const fetchReservasPorFecha = async (fecha) => {
         try {
             const token = localStorage.getItem("token"); // Obtener el token
-            const response = await axios.get(`http://localhost:3001/api/reservas/${fecha}`, {
+            const response = await axios.get(`https://localhost:3001/api/reservas/${fecha}`, {
                 headers: {
                     Authorization: `Bearer ${token}` // Incluir el token en la petición
                 }
@@ -262,7 +262,7 @@ export function HomePage() {
         const fechaCompleta = `${selectedDay} ${hora}:00`; // Combina fecha y hora
         try {
             const token = localStorage.getItem("token"); // Obtener el token
-            const response = await axios.post("http://localhost:3001/api/reservas", {
+            const response = await axios.post("https://localhost:3001/api/reservas", {
                 Fecha_hora: fechaCompleta,
                 Persona_id: id,
                 rol: userRole
@@ -312,7 +312,7 @@ export function HomePage() {
                 return;
             }
 
-            const response = await axios.delete(`http://localhost:3001/api/reservas/${id}`, {
+            const response = await axios.delete(`https://localhost:3001/api/reservas/${id}`, {
                 headers: {
                     Authorization: `Bearer ${token}` // Incluir el token en la petición
                 },

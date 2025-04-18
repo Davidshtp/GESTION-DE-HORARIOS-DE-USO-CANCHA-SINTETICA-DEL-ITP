@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Axios from "axios";
-import { jwtDecode } from "jwt-decode";
 import { GoogleLogin } from "@react-oauth/google";
 
 export function InicioSesion() {
@@ -40,15 +39,13 @@ export function InicioSesion() {
         if (!usuario || !contrasena) {
             setMensaje("Ingrese todos los datos");
         } else {
-            Axios.post("http://localhost:3001/api/login", {
+            Axios.post("https://localhost:3001/api/login", {
                 identificacion: usuario,
                 contrasena: contrasena
             })
                 .then((response) => {
                     if (response.data.token) {
                         localStorage.setItem("token", response.data.token);
-                        const usuarioData = jwtDecode(response.data.token);
-                        console.log("Usuario Decodificado:", usuarioData);
 
                         setMensaje("Inicio de sesión exitoso");
                         setUsuario("");
@@ -80,7 +77,7 @@ export function InicioSesion() {
     const manejarLoginGoogle = async (response) => {
         try {
             // Enviar el token de Google al backend
-            const res = await Axios.post("http://localhost:3001/api/google", { token: response.credential });
+            const res = await Axios.post("https://localhost:3001/api/google", { token: response.credential });
 
             // Guardar el token en el localStorage
             localStorage.setItem("token", res.data.token);

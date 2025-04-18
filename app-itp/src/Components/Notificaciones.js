@@ -27,7 +27,7 @@ export function Notificaciones() {
         const token = localStorage.getItem("token"); // Obtener el token
         if (!usuarioId) return; // Evita hacer la petición si no hay un usuarioId válido
         // Llamar a la API para obtener las notificaciones usando Axios
-        axios.get(`http://localhost:3001/api/notificaciones/${usuarioId}`,{
+        axios.get(`https://localhost:3001/api/notificaciones/${usuarioId}`,{
             headers: {
                 'Content-Type': 'multipart/form-data',
                 Authorization: `Bearer ${token}`

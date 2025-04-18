@@ -37,7 +37,7 @@ export function Reportes() {
 
         try {
             const token = localStorage.getItem("token"); // Obtener el token
-            const response = await axios.get(`http://localhost:3001/api/reservas/usuario/${identificacion}`, {
+            const response = await axios.get(`https://localhost:3001/api/reservas/usuario/${identificacion}`, {
                 params: { format },
                 responseType: 'blob', // Para manejar la descarga de archivos
                 headers: {
