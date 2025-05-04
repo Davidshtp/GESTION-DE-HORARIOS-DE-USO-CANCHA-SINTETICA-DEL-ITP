@@ -5,22 +5,19 @@ import axios from 'axios';
 
 export function Reportes() {
     const history = useNavigate();
+    const [tipoReporte, setTipoReporte] = useState('');
     const [identificacion, setIdentificacion] = useState('');
     const [format, setFormat] = useState('excel');
     const [error, setError] = useState('');
-
-   
-    
-
 
     useEffect(() => {
         if (error) {
             const timer = setTimeout(() => {
                 setError('');
                 setIdentificacion('');
+                setTipoReporte('');
                 setFormat('excel');
             }, 2000);
-
 
             return () => clearTimeout(timer);
         }
@@ -29,16 +26,32 @@ export function Reportes() {
     const handleDownload = async (e) => {
         e.preventDefault(); // Evitar que el formulario se envíe de forma predeterminada
 
-        // Validar que la identificación no esté vacía
-        if (!identificacion) {
+        // Validar que el tipo de reporte esté seleccionado
+        if (!tipoReporte) {
+            setError("Por favor, selecciona un tipo de reporte.");
+            return;
+        }
+
+        // Validar que la identificación esté vacía solo si no es necesario para el reporte
+        if (tipoReporte === 'reservas-por-id' && !identificacion) {
             setError("Por favor, ingresa una identificación.");
             return;
         }
 
         try {
             const token = localStorage.getItem("token"); // Obtener el token
-            const response = await axios.get(`https://localhost:3001/api/reservas/usuario/${identificacion}`, {
-                params: { format },
+
+            let url = `https://localhost:3001/api/reporte-general/${tipoReporte}`;
+            let params = { format };
+
+            // Si el tipo de reporte es 'reservas-por-id', la URL y los parámetros cambian
+            if (tipoReporte === 'reservas-por-id') {
+                url = `https://localhost:3001/api/reservas/usuario/${identificacion}`;
+                params = { format }; // Solo agregamos 'format' para el reporte de usuario
+            }
+
+            const response = await axios.get(url, {
+                params,
                 responseType: 'blob', // Para manejar la descarga de archivos
                 headers: {
                     Authorization: `Bearer ${token}` // Incluir el token en la petición
@@ -46,7 +59,6 @@ export function Reportes() {
             });
 
             if (response.status === 200) {
-                // Verificar el tipo de contenido de la respuesta
                 const contentType = response.headers['content-type'];
 
                 if (contentType.includes('application/json')) {
@@ -62,12 +74,13 @@ export function Reportes() {
                     const url = window.URL.createObjectURL(new Blob([response.data]));
                     const link = document.createElement('a');
                     link.href = url;
-                    link.setAttribute('download', `ReservasUsuario.${format}`);
+                    link.setAttribute('download', `Reporte_${tipoReporte}.${format}`);
                     document.body.appendChild(link);
                     link.click();
                     link.remove();
                     setError('');
                     setTimeout(() => {
+                        setTipoReporte('');
                         setIdentificacion('');
                         setFormat('excel');
                     }, 2000);
@@ -75,7 +88,7 @@ export function Reportes() {
             }
         } catch (error) {
             if (error.response && error.response.status === 404) {
-                setError(error.response.data.message || "El usuario no existe o no tiene reservas.");
+                setError(error.response.data.message || "No se encontraron datos para este reporte.");
             } else {
                 setError("Error en el servidor. Inténtelo de nuevo más tarde.");
             }
@@ -96,15 +109,34 @@ export function Reportes() {
                 </div>
                 <form onSubmit={handleDownload} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Identificación del Usuario:</label>
-                        <input
-                            type="text"
-                            value={identificacion}
-                            onChange={(e) => setIdentificacion(e.target.value)}
+                        <label className="block text-sm font-medium text-gray-700">Tipo de Reporte:</label>
+                        <select
+                            value={tipoReporte}
+                            onChange={(e) => setTipoReporte(e.target.value)}
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                            required
-                        />
+                        >
+                            <option value="">Selecciona un tipo de reporte</option>
+                            <option value="usuarios-mayor-promedio">Usuarios con más reservas que el promedio</option>
+                            <option value="fechas-multiples">Fechas con múltiples reservas</option>
+                            <option value="sin-notificaciones">Usuarios sin notificaciones</option>
+                            <option value="Rol-con-mas-reservas">Rol con mas reservas</option>
+                            <option value="reservas-por-id">Reservas por ID</option>
+                        </select>
                     </div>
+
+                    {tipoReporte === 'reservas-por-id' && (
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Identificación del Usuario:</label>
+                            <input
+                                type="text"
+                                value={identificacion}
+                                onChange={(e) => setIdentificacion(e.target.value)}
+                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                required={tipoReporte === 'reservas-por-id'}
+                            />
+                        </div>
+                    )}
+
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Formato del Reporte:</label>
                         <select
@@ -116,6 +148,7 @@ export function Reportes() {
                             <option value="pdf">PDF</option>
                         </select>
                     </div>
+
                     <button
                         type="submit"
                         className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"

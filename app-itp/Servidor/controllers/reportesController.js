@@ -11,9 +11,7 @@ const fonts = {
         bolditalics: 'Helvetica-BoldOblique'
     }
 };
-
-const printer = new PdfPrinter(fonts); // Pasar las fuentes al constructor
-
+const printer = new PdfPrinter(fonts);
 // Controlador para exportar el reporte de reservas por usuario
 exports.exportarReservasUsuario = async (req, res) => {
     const { identificacion } = req.params;
@@ -150,5 +148,113 @@ exports.exportarReservasUsuario = async (req, res) => {
     } catch (error) {
         console.error("Error al obtener las reservas o exportar el reporte:", error);
         return res.status(500).json({ success: false, message: "Error en el servidor." });
+    }
+};
+
+exports.exportarReporteGeneral = async (req, res) => {
+    const { tipo } = req.params;
+    const format = req.query.format || 'excel';
+
+    try {
+        let resultados = [];
+        let columnas = [];
+
+        switch (tipo) {
+            case 'usuarios-mayor-promedio':
+                resultados = await ReportesModel.usuariosConMasReservasQueElPromedio();
+                columnas = [
+                    { header: 'Nombre', key: 'NOMBRE', width: 20 },
+                    { header: 'Apellido', key: 'APELLIDO', width: 20 },
+                    { header: 'Correo', key: 'CORREO', width: 30 },
+                    { header: 'Total Reservas', key: 'total_reservas', width: 15 }
+                ];
+                break;
+
+            case 'fechas-multiples':
+                resultados = await ReportesModel.fechasConMultiplesReservas();
+                columnas = [
+                    { header: 'Fecha', key: 'fecha', width: 20 },
+                    { header: 'Cantidad de Reservas', key: 'cantidad_reservas', width: 25 }
+                ];
+                break;
+
+            case 'sin-notificaciones':
+                resultados = await ReportesModel.usuariosSinNotificaciones();
+                columnas = [
+                    { header: 'Nombre', key: 'NOMBRE', width: 20 },
+                    { header: 'Apellido', key: 'APELLIDO', width: 20 },
+                    { header: 'Correo', key: 'CORREO', width: 30 }
+                ];
+                break;
+
+            case 'Rol-con-mas-reservas':
+                resultados = await ReportesModel.rolConMasReservas();
+                columnas = [
+                    { header: 'Rol', key: 'Rol', width: 25 },
+                    { header: 'Total de Reservas', key: 'Total_reservas', width: 25 }
+                ];
+                break;
+
+            default:
+                return res.status(400).json({ success: false, message: "Tipo de reporte no válido." });
+        }
+
+        if (resultados.length === 0) {
+            return res.status(200).json({ success: false, message: "No se encontraron datos para este reporte." });
+        }
+
+        // 📤 Exportar en Excel
+        if (format === 'excel') {
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Reporte');
+
+            worksheet.columns = columnas;
+            resultados.forEach((row) => {
+                worksheet.addRow(row);
+            });
+
+            const buffer = await workbook.xlsx.writeBuffer();
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', `attachment; filename=Reporte_${tipo}.xlsx`);
+            return res.send(buffer);
+        }
+
+        // 🧾 Exportar en PDF
+        if (format === 'pdf') {
+            const headers = columnas.map(col => ({ text: col.header, style: 'tableHeader' }));
+            const body = [headers];
+
+            resultados.forEach((row) => {
+                const dataRow = columnas.map(col => row[col.key]);
+                body.push(dataRow);
+            });
+
+            const docDefinition = {
+                content: [
+                    { text: `Reporte: ${tipo.replace(/-/g, ' ')}`, style: 'header' },
+                    {
+                        table: { headerRows: 1, body },
+                        layout: { fillColor: (rowIndex) => rowIndex === 0 ? '#CCCCCC' : null }
+                    }
+                ],
+                styles: {
+                    header: { fontSize: 18, bold: true, alignment: 'center', margin: [0, 0, 0, 10] },
+                    tableHeader: { bold: true, fontSize: 12, color: 'black' }
+                },
+                defaultStyle: { font: 'Helvetica' }
+            };
+
+            const pdfDoc = printer.createPdfKitDocument(docDefinition);
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename=Reporte_${tipo}.pdf`);
+            pdfDoc.pipe(res);
+            pdfDoc.end();
+        } else {
+            return res.status(400).json({ success: false, message: "Formato no válido. Usa 'excel' o 'pdf'." });
+        }
+
+    } catch (error) {
+        console.error("Error al generar el reporte:", error);
+        res.status(500).json({ success: false, message: "Error en el servidor." });
     }
 };
